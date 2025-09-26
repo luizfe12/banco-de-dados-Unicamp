@@ -1,0 +1,302 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math} % this also loads fontspec
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1in]{geometry}
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\usepackage{bookmark}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same}
+\hypersetup{
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+
+Desfaio de: Luiz Felipe da Silva 241625 Pedro Monteiro Tilhe 254672
+Kaleo Campos Gomes de Sá Ecles 256333
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## -- Attaching core tidyverse packages ------------------------ tidyverse 2.0.0 --
+## v dplyr     1.1.4     v readr     2.1.5
+## v forcats   1.0.0     v stringr   1.5.1
+## v ggplot2   3.5.1     v tibble    3.2.1
+## v lubridate 1.9.4     v tidyr     1.3.1
+## v purrr     1.0.4     
+## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+## i Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{library}\NormalTok{(readr)}
+\FunctionTok{library}\NormalTok{(lubridate)}
+\FunctionTok{library}\NormalTok{(geosphere)}
+\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{library}\NormalTok{(maps)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+## Anexando pacote: 'maps'
+## 
+## O seguinte objeto é mascarado por 'package:purrr':
+## 
+##     map
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Ler airports.csv (apenas colunas relevantes)}
+\NormalTok{airports }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(}
+  \StringTok{"airports.csv"}\NormalTok{,}
+  \AttributeTok{col\_types =} \FunctionTok{cols}\NormalTok{(}
+    \AttributeTok{IATA\_CODE =} \FunctionTok{col\_character}\NormalTok{(),}
+    \AttributeTok{CITY      =} \FunctionTok{col\_character}\NormalTok{(),}
+    \AttributeTok{STATE     =} \FunctionTok{col\_character}\NormalTok{(),}
+    \AttributeTok{LATITUDE  =} \FunctionTok{col\_double}\NormalTok{(),}
+    \AttributeTok{LONGITUDE =} \FunctionTok{col\_double}\NormalTok{()}
+\NormalTok{  )}
+\NormalTok{)}
+
+\CommentTok{\# Ler flights.csv (todas as colunas)}
+\NormalTok{flights\_raw }\OtherTok{\textless{}{-}} \FunctionTok{read\_csv}\NormalTok{(}\StringTok{"flights.csv"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Rows: 5819079 Columns: 31
+## -- Column specification --------------------------------------------------------
+## Delimiter: ","
+## chr (11): AIRLINE, TAIL_NUMBER, ORIGIN_AIRPORT, DESTINATION_AIRPORT, SCHEDUL...
+## dbl (20): YEAR, MONTH, DAY, DAY_OF_WEEK, FLIGHT_NUMBER, DEPARTURE_DELAY, TAX...
+## 
+## i Use `spec()` to retrieve the full column specification for this data.
+## i Specify the column types or set `show_col_types = FALSE` to quiet this message.
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Converter hhmm para segundos}
+\NormalTok{.hhmm\_to\_hm }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(x) \{}
+\NormalTok{  x }\OtherTok{\textless{}{-}} \FunctionTok{as.character}\NormalTok{(x)}
+\NormalTok{  x }\OtherTok{\textless{}{-}}\NormalTok{ stringr}\SpecialCharTok{::}\FunctionTok{str\_pad}\NormalTok{(x, }\DecValTok{4}\NormalTok{, }\AttributeTok{pad =} \StringTok{"0"}\NormalTok{)}
+\NormalTok{  h }\OtherTok{\textless{}{-}} \FunctionTok{suppressWarnings}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\FunctionTok{substr}\NormalTok{(x, }\DecValTok{1}\NormalTok{, }\DecValTok{2}\NormalTok{)))}
+\NormalTok{  m }\OtherTok{\textless{}{-}} \FunctionTok{suppressWarnings}\NormalTok{(}\FunctionTok{as.integer}\NormalTok{(}\FunctionTok{substr}\NormalTok{(x, }\DecValTok{3}\NormalTok{, }\DecValTok{4}\NormalTok{)))}
+\NormalTok{  h[}\FunctionTok{is.na}\NormalTok{(h)] }\OtherTok{\textless{}{-}} \DecValTok{0}\DataTypeTok{L}\NormalTok{; m[}\FunctionTok{is.na}\NormalTok{(m)] }\OtherTok{\textless{}{-}} \DecValTok{0}\DataTypeTok{L}
+\NormalTok{  h }\SpecialCharTok{*} \DecValTok{3600} \SpecialCharTok{+}\NormalTok{ m }\SpecialCharTok{*} \DecValTok{60}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{\# Função principal que recebe o TAIL\_NUMBER}
+\NormalTok{make\_tail\_map }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(tail\_number) \{}
+\NormalTok{  has\_cols }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(df, cols) }\FunctionTok{all}\NormalTok{(cols }\SpecialCharTok{\%in\%} \FunctionTok{names}\NormalTok{(df))}
+  
+  \CommentTok{\# Filtrar voos da aeronave escolhida}
+\NormalTok{  df }\OtherTok{\textless{}{-}}\NormalTok{ flights\_raw }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(TAIL\_NUMBER }\SpecialCharTok{==}\NormalTok{ .env}\SpecialCharTok{$}\NormalTok{tail\_number) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(ORIGIN\_AIRPORT), }\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(DESTINATION\_AIRPORT))}
+  
+  \CommentTok{\# Verificar se encontrou voos}
+  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{nrow}\NormalTok{(df) }\SpecialCharTok{==} \DecValTok{0}\NormalTok{) }\FunctionTok{stop}\NormalTok{(}\FunctionTok{sprintf}\NormalTok{(}\StringTok{"Nenhum voo encontrado para \textquotesingle{}\%s\textquotesingle{}."}\NormalTok{, tail\_number))}
+  
+  \CommentTok{\# Identificar colunas de horários}
+\NormalTok{  time\_col }\OtherTok{\textless{}{-}} \ControlFlowTok{if}\NormalTok{ (}\StringTok{"DEPARTURE\_TIME"} \SpecialCharTok{\%in\%} \FunctionTok{names}\NormalTok{(df)) }\StringTok{"DEPARTURE\_TIME"} \ControlFlowTok{else}
+    \ControlFlowTok{if}\NormalTok{ (}\StringTok{"SCHEDULED\_DEPARTURE"} \SpecialCharTok{\%in\%} \FunctionTok{names}\NormalTok{(df)) }\StringTok{"SCHEDULED\_DEPARTURE"} \ControlFlowTok{else} \ConstantTok{NA}
+\NormalTok{  arrv\_col }\OtherTok{\textless{}{-}} \ControlFlowTok{if}\NormalTok{ (}\StringTok{"ARRIVAL\_TIME"} \SpecialCharTok{\%in\%} \FunctionTok{names}\NormalTok{(df)) }\StringTok{"ARRIVAL\_TIME"} \ControlFlowTok{else}
+    \ControlFlowTok{if}\NormalTok{ (}\StringTok{"SCHEDULED\_ARRIVAL"} \SpecialCharTok{\%in\%} \FunctionTok{names}\NormalTok{(df)) }\StringTok{"SCHEDULED\_ARRIVAL"} \ControlFlowTok{else} \ConstantTok{NA}
+  
+  \CommentTok{\# Conferir se colunas de data/hora existem}
+  \ControlFlowTok{if}\NormalTok{ (}\FunctionTok{is.na}\NormalTok{(time\_col) }\SpecialCharTok{||} \FunctionTok{is.na}\NormalTok{(arrv\_col) }\SpecialCharTok{||}
+      \SpecialCharTok{!}\FunctionTok{has\_cols}\NormalTok{(df, }\FunctionTok{c}\NormalTok{(}\StringTok{"YEAR"}\NormalTok{,}\StringTok{"MONTH"}\NormalTok{,}\StringTok{"DAY"}\NormalTok{))) \{}
+    \FunctionTok{stop}\NormalTok{(}\StringTok{"Faltam colunas de data/hora."}\NormalTok{)}
+\NormalTok{  \}}
+  
+  \CommentTok{\# Criar timestamps de partida e chegada}
+\NormalTok{  df }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}
+      \AttributeTok{dep\_sec  =} \FunctionTok{.hhmm\_to\_hm}\NormalTok{(.data[[time\_col]]),}
+      \AttributeTok{arr\_sec  =} \FunctionTok{.hhmm\_to\_hm}\NormalTok{(.data[[arrv\_col]]),}
+      \AttributeTok{dep\_dt   =} \FunctionTok{make\_datetime}\NormalTok{(YEAR, MONTH, DAY) }\SpecialCharTok{+} \FunctionTok{seconds}\NormalTok{(dep\_sec),}
+      \AttributeTok{arr\_dt   =} \FunctionTok{make\_datetime}\NormalTok{(YEAR, MONTH, DAY) }\SpecialCharTok{+} \FunctionTok{seconds}\NormalTok{(arr\_sec) }\SpecialCharTok{+}
+        \FunctionTok{if\_else}\NormalTok{(arr\_sec }\SpecialCharTok{\textless{}}\NormalTok{ dep\_sec, }\FunctionTok{days}\NormalTok{(}\DecValTok{1}\NormalTok{), }\FunctionTok{days}\NormalTok{(}\DecValTok{0}\NormalTok{))}
+\NormalTok{    ) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{arrange}\NormalTok{(dep\_dt) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{seg\_id =} \FunctionTok{row\_number}\NormalTok{())}
+  
+  \CommentTok{\# Juntar com coordenadas dos aeroportos}
+\NormalTok{  air\_min }\OtherTok{\textless{}{-}}\NormalTok{ airports }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{select}\NormalTok{(IATA\_CODE, LATITUDE, LONGITUDE, CITY, STATE)}
+  
+\NormalTok{  tidy\_table }\OtherTok{\textless{}{-}}\NormalTok{ df }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{mutate}\NormalTok{(}\AttributeTok{DEP\_DATETIME =}\NormalTok{ dep\_dt, }\AttributeTok{ARR\_DATETIME =}\NormalTok{ arr\_dt) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{left\_join}\NormalTok{(air\_min, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"ORIGIN\_AIRPORT"} \OtherTok{=} \StringTok{"IATA\_CODE"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{rename}\NormalTok{(}\AttributeTok{LAT\_ORIG =}\NormalTok{ LATITUDE, }\AttributeTok{LON\_ORIG =}\NormalTok{ LONGITUDE) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{left\_join}\NormalTok{(air\_min, }\AttributeTok{by =} \FunctionTok{c}\NormalTok{(}\StringTok{"DESTINATION\_AIRPORT"} \OtherTok{=} \StringTok{"IATA\_CODE"}\NormalTok{)) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{rename}\NormalTok{(}\AttributeTok{LAT\_DEST =}\NormalTok{ LATITUDE, }\AttributeTok{LON\_DEST =}\NormalTok{ LONGITUDE) }\SpecialCharTok{\%\textgreater{}\%}
+    \CommentTok{\# Calcular distância, duração e velocidade média}
+    \FunctionTok{mutate}\NormalTok{(}
+      \AttributeTok{dist\_km =}\NormalTok{ geosphere}\SpecialCharTok{::}\FunctionTok{distHaversine}\NormalTok{(}\FunctionTok{cbind}\NormalTok{(LON\_ORIG, LAT\_ORIG), }\FunctionTok{cbind}\NormalTok{(LON\_DEST, LAT\_DEST))}\SpecialCharTok{/}\DecValTok{1000}\NormalTok{,}
+      \AttributeTok{dur\_hr  =} \ControlFlowTok{if}\NormalTok{ (}\StringTok{"AIR\_TIME"} \SpecialCharTok{\%in\%} \FunctionTok{names}\NormalTok{(.))}
+        \FunctionTok{ifelse}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(AIR\_TIME), AIR\_TIME}\SpecialCharTok{/}\DecValTok{60}\NormalTok{,}
+               \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{difftime}\NormalTok{(ARR\_DATETIME, DEP\_DATETIME, }\AttributeTok{units=}\StringTok{"hours"}\NormalTok{)))}
+      \ControlFlowTok{else} \FunctionTok{as.numeric}\NormalTok{(}\FunctionTok{difftime}\NormalTok{(ARR\_DATETIME, DEP\_DATETIME, }\AttributeTok{units=}\StringTok{"hours"}\NormalTok{)),}
+      \AttributeTok{vel\_kmh =} \FunctionTok{if\_else}\NormalTok{(}\FunctionTok{is.finite}\NormalTok{(dur\_hr) }\SpecialCharTok{\&}\NormalTok{ dur\_hr }\SpecialCharTok{\textgreater{}} \DecValTok{0}\NormalTok{, dist\_km}\SpecialCharTok{/}\NormalTok{dur\_hr, }\ConstantTok{NA\_real\_}\NormalTok{)}
+\NormalTok{    ) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{relocate}\NormalTok{(seg\_id, DEP\_DATETIME, ARR\_DATETIME) }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{arrange}\NormalTok{(DEP\_DATETIME)}
+  
+  \CommentTok{\# Filtrar apenas linhas válidas para plot}
+\NormalTok{  tidy\_plot }\OtherTok{\textless{}{-}}\NormalTok{ tidy\_table }\SpecialCharTok{\%\textgreater{}\%}
+    \FunctionTok{filter}\NormalTok{(}\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(LAT\_ORIG), }\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(LON\_ORIG),}
+           \SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(LAT\_DEST), }\SpecialCharTok{!}\FunctionTok{is.na}\NormalTok{(LON\_DEST),}
+           \FunctionTok{is.finite}\NormalTok{(vel\_kmh))}
+  
+  \CommentTok{\# Base de mapa dos EUA}
+\NormalTok{  us\_map }\OtherTok{\textless{}{-}} \FunctionTok{map\_data}\NormalTok{(}\StringTok{"state"}\NormalTok{)}
+  
+  \CommentTok{\# Criar mapa com trajetos e velocidade média}
+\NormalTok{  p }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_polygon}\NormalTok{(}\AttributeTok{data =}\NormalTok{ us\_map, }\FunctionTok{aes}\NormalTok{(long, lat, }\AttributeTok{group =}\NormalTok{ group),}
+                 \AttributeTok{fill =} \StringTok{"grey95"}\NormalTok{, }\AttributeTok{color =} \StringTok{"grey80"}\NormalTok{, }\AttributeTok{linewidth =} \FloatTok{0.2}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{geom\_segment}\NormalTok{(}\AttributeTok{data =}\NormalTok{ tidy\_plot,}
+                 \FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ LON\_ORIG, }\AttributeTok{y =}\NormalTok{ LAT\_ORIG, }\AttributeTok{xend =}\NormalTok{ LON\_DEST, }\AttributeTok{yend =}\NormalTok{ LAT\_DEST,}
+                     \AttributeTok{linewidth =}\NormalTok{ vel\_kmh, }\AttributeTok{color =}\NormalTok{ vel\_kmh),}
+                 \AttributeTok{alpha =} \FloatTok{0.7}\NormalTok{, }\AttributeTok{lineend =} \StringTok{"round"}\NormalTok{, }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{data =}\NormalTok{ tidy\_plot, }\FunctionTok{aes}\NormalTok{(LON\_ORIG, LAT\_ORIG), }\AttributeTok{size =} \FloatTok{1.1}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.8}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{data =}\NormalTok{ tidy\_plot, }\FunctionTok{aes}\NormalTok{(LON\_DEST, LAT\_DEST), }\AttributeTok{size =} \FloatTok{1.1}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.8}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{scale\_linewidth\_continuous}\NormalTok{(}\AttributeTok{name =} \StringTok{"Velocidade média (km/h)"}\NormalTok{, }\AttributeTok{range =} \FunctionTok{c}\NormalTok{(}\FloatTok{0.4}\NormalTok{, }\FloatTok{2.8}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{scale\_color\_viridis\_c}\NormalTok{(}\AttributeTok{name =} \StringTok{"Velocidade média (km/h)"}\NormalTok{, }\AttributeTok{option =} \StringTok{"C"}\NormalTok{, }\AttributeTok{na.value =} \StringTok{"grey80"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{guides}\NormalTok{(}\AttributeTok{linewidth =} \StringTok{"none"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{coord\_quickmap}\NormalTok{(}\AttributeTok{xlim =} \FunctionTok{range}\NormalTok{(}\FunctionTok{c}\NormalTok{(tidy\_plot}\SpecialCharTok{$}\NormalTok{LON\_ORIG, tidy\_plot}\SpecialCharTok{$}\NormalTok{LON\_DEST), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{),}
+                   \AttributeTok{ylim =} \FunctionTok{range}\NormalTok{(}\FunctionTok{c}\NormalTok{(tidy\_plot}\SpecialCharTok{$}\NormalTok{LAT\_ORIG, tidy\_plot}\SpecialCharTok{$}\NormalTok{LAT\_DEST), }\AttributeTok{na.rm =} \ConstantTok{TRUE}\NormalTok{) }\SpecialCharTok{+} \FunctionTok{c}\NormalTok{(}\SpecialCharTok{{-}}\DecValTok{2}\NormalTok{, }\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \FunctionTok{sprintf}\NormalTok{(}\StringTok{"Trajeto anual da aeronave \%s"}\NormalTok{, tail\_number),}
+         \AttributeTok{subtitle =} \StringTok{"Espessura/cores = velocidade média por voo"}\NormalTok{,}
+         \AttributeTok{x =} \ConstantTok{NULL}\NormalTok{, }\AttributeTok{y =} \ConstantTok{NULL}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme\_minimal}\NormalTok{(}\AttributeTok{base\_size =} \DecValTok{11}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme}\NormalTok{(}\AttributeTok{panel.grid =} \FunctionTok{element\_blank}\NormalTok{(), }\AttributeTok{legend.position =} \StringTok{"right"}\NormalTok{)}
+  
+  \CommentTok{\# Retornar tabela e mapa}
+  \FunctionTok{list}\NormalTok{(}\AttributeTok{table =}\NormalTok{ tidy\_table, }\AttributeTok{plot =}\NormalTok{ p)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{tail\_id }\OtherTok{\textless{}{-}} \FunctionTok{na.omit}\NormalTok{(flights\_raw}\SpecialCharTok{$}\NormalTok{TAIL\_NUMBER)[}\DecValTok{1}\NormalTok{]}
+\NormalTok{ out }\OtherTok{\textless{}{-}} \FunctionTok{make\_tail\_map}\NormalTok{(tail\_id)}
+ \FunctionTok{View}\NormalTok{(out}\SpecialCharTok{$}\NormalTok{table); }\FunctionTok{print}\NormalTok{(out}\SpecialCharTok{$}\NormalTok{plot)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{Desafio-BD_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+\end{document}

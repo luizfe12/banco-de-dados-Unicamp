@@ -1,0 +1,203 @@
+
+
+
+
+
+```{r setup, message=FALSE, warning=FALSE}
+# Carregando os pacotes necessários
+library(RSQLite)
+library(DBI)
+library(dplyr)
+
+
+path <- getwd() 
+# Combinando o caminho com o nome do arquivo
+fname <- file.path(path, "disco.db")
+
+# Conectando ao banco de dados SQLite
+conn <- dbConnect(SQLite(), dbname = fname)
+
+print(conn)
+```
+
+---
+
+
+```{r}
+dbListTables(conn)
+```
+
+```{r}
+dbListFields(conn, "customers")
+```
+
+```{r}
+query_total_clientes <- "SELECT COUNT(CustomerId) AS total_de_clientes FROM customers;"
+total_clientes <- dbGetQuery(conn, query_total_clientes)
+print(total_clientes)
+```
+
+
+Para contar apenas os países únicos, usamos `COUNT(DISTINCT Country)`.
+
+```{r contar-paises}
+query_paises_distintos <- "SELECT COUNT(DISTINCT Country) AS total_de_paises FROM customers;"
+paises_distintos <- dbGetQuery(conn, query_paises_distintos)
+print(paises_distintos)
+```
+
+
+Agrupamos os clientes por país (`GROUP BY Country`) e contamos o número de ocorrências em cada grupo, ordenando o resultado de forma decrescente.
+
+```{r clientes-por-pais}
+query_clientes_por_pais <- "
+  SELECT 
+    Country, 
+    COUNT(CustomerId) AS contagem
+  FROM customers
+  GROUP BY Country
+  ORDER BY contagem DESC;
+"
+clientes_por_pais <- dbGetQuery(conn, query_clientes_por_pais)
+print(clientes_por_pais)
+```
+
+
+Adicionamos a cláusula `LIMIT 5` à consulta anterior para restringir o resultado aos 5 primeiros registros.
+
+```{r top5-paises}
+query_top5_paises <- "
+  SELECT 
+    Country, 
+    COUNT(CustomerId) AS contagem
+  FROM customers
+  GROUP BY Country
+  ORDER BY contagem DESC
+  LIMIT 5;
+"
+top5_paises <- dbGetQuery(conn, query_top5_paises)
+print(top5_paises)
+```
+
+
+
+Utilizamos a função `LENGTH()` dentro da cláusula `WHERE` para filtrar os países cujo nome contém exatamente 6 caracteres.
+
+```{r paises-6-letras}
+query_paises_6_letras <- "
+  SELECT DISTINCT Country 
+  FROM customers 
+  WHERE LENGTH(Country) = 6;
+"
+paises_6_letras <- dbGetQuery(conn, query_paises_6_letras)
+print(paises_6_letras)
+```
+
+
+Esta consulta requer a junção (`INNER JOIN`) de múltiplas tabelas para conectar os clientes do Brasil (`customers`) às suas faturas (`invoices`), aos itens comprados (`invoice_items`) e, finalmente, às faixas de música (`tracks`).
+
+```{r musicas-brasileiros}
+query_musicas_brasil <- "
+  SELECT
+    t.Name AS Musica,
+    ar.Name AS Artista,
+    c.FirstName || ' ' || c.LastName AS Cliente
+  FROM customers c
+  INNER JOIN invoices i ON c.CustomerId = i.CustomerId
+  INNER JOIN invoice_items ii ON i.InvoiceId = ii.InvoiceId
+  INNER JOIN tracks t ON ii.TrackId = t.TrackId
+  INNER JOIN albums al ON t.AlbumId = al.AlbumId
+  INNER JOIN artists ar ON al.ArtistId = ar.ArtistId
+  WHERE c.Country = 'Brazil';
+"
+musicas_brasil <- dbGetQuery(conn, query_musicas_brasil)
+
+# Exibindo as primeiras 10 músicas encontradas
+head(musicas_brasil, 10)
+```
+
+---
+
+Para encontrar o álbum mais vendido em cada país, contamos o número de faixas vendidas por álbum e por país. Em seguida, usamos uma função de janela (`RANK()`) para classificar os álbuns dentro de cada país e selecionamos apenas o primeiro colocado (`RankNum = 1`). O uso de `RANK()` permite que empates sejam exibidos.
+
+```{r album-mais-tocado}
+query_album_por_pais <- "
+WITH AlbumSales AS (
+  SELECT
+    c.Country,
+    al.Title AS AlbumTitle,
+    COUNT(ii.InvoiceLineId) AS TracksSold
+  FROM customers c
+  JOIN invoices i ON c.CustomerId = i.CustomerId
+  JOIN invoice_items ii ON i.InvoiceId = ii.InvoiceId
+  JOIN tracks t ON ii.TrackId = t.TrackId
+  JOIN albums al ON t.AlbumId = al.AlbumId
+  GROUP BY c.Country, al.Title
+),
+RankedSales AS (
+  SELECT
+    Country,
+    AlbumTitle,
+    TracksSold,
+    RANK() OVER(PARTITION BY Country ORDER BY TracksSold DESC) as RankNum
+  FROM AlbumSales
+)
+SELECT
+  Country,
+  AlbumTitle,
+  TracksSold
+FROM RankedSales
+WHERE RankNum = 1
+ORDER BY Country;
+"
+
+album_mais_vendido <- dbGetQuery(conn, query_album_por_pais)
+print(album_mais_vendido)
+
+```
+
+
+A lógica é idêntica à anterior, mas agrupamos por artista em vez de álbum. Juntamos a tabela `artists` e contamos o total de faixas vendidas por artista em cada país, ranqueando o resultado para obter o mais popular.
+
+```{r artista-mais-tocado}
+query_artista_por_pais <- "
+WITH ArtistSales AS (
+  SELECT
+    c.Country,
+    ar.Name AS ArtistName,
+    COUNT(ii.InvoiceLineId) AS TracksSold
+  FROM customers c
+  JOIN invoices i ON c.CustomerId = i.CustomerId
+  JOIN invoice_items ii ON i.InvoiceId = ii.InvoiceId
+  JOIN tracks t ON ii.TrackId = t.TrackId
+  JOIN albums al ON t.AlbumId = al.AlbumId
+  JOIN artists ar ON al.ArtistId = ar.ArtistId
+  GROUP BY c.Country, ar.Name
+),
+RankedSales AS (
+  SELECT
+    Country,
+    ArtistName,
+    TracksSold,
+    RANK() OVER(PARTITION BY Country ORDER BY TracksSold DESC) as RankNum
+  FROM ArtistSales
+)
+SELECT
+  Country,
+  ArtistName,
+  TracksSold
+FROM RankedSales
+WHERE RankNum = 1
+ORDER BY Country;
+"
+artista_mais_vendido <- dbGetQuery(conn, query_artista_por_pais)
+print(artista_mais_vendido)
+```
+
+---
+
+
+```{r desconectar}
+# Desconectando do banco de dados
+dbDisconnect(conn)
+```

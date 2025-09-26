@@ -1,0 +1,159 @@
+```{python}
+# Importa a biblioteca pandas
+import pandas as pd
+
+# --- PREPARAÇÃO ---
+caminho_arquivo = 'flights.csv'
+tamanho_chunk = 100000
+lista_de_resultados = []
+
+NOME_COLUNA_CIA = 'AIRLINE'
+
+
+def getStats(input_df):
+    colunas_de_interesse = ['YEAR', 'MONTH', 'DAY', NOME_COLUNA_CIA, 'ARRIVAL_DELAY']
+    
+    if not all(coluna in input_df.columns for coluna in colunas_de_interesse):
+        return pd.DataFrame()
+        
+    df_selecionado = input_df[colunas_de_interesse]
+    df_filtrado = df_selecionado[df_selecionado[NOME_COLUNA_CIA].isin(['AA', 'DL', 'UA', 'US'])]
+    df_sem_na = df_filtrado.dropna(subset=['ARRIVAL_DELAY'])
+    
+    df_com_atraso = df_sem_na.copy()
+    df_com_atraso['IS_DELAYED'] = (df_com_atraso['ARRIVAL_DELAY'] > 10).astype(int)
+
+    stats = df_com_atraso.groupby(['YEAR', 'MONTH', 'DAY', NOME_COLUNA_CIA]).agg(
+        TOTAL_FLIGHTS=(NOME_COLUNA_CIA, 'size'),
+        DELAYED_FLIGHTS=('IS_DELAYED', 'sum')
+    ).reset_index()
+    
+    return stats
+
+# --- LEITURA E PROCESSAMENTO EM CHUNKS ---
+print("Iniciando a leitura e processamento do arquivo...")
+leitor_de_chunks = pd.read_csv(caminho_arquivo, chunksize=tamanho_chunk, low_memory=False)
+
+for i, chunk in enumerate(leitor_de_chunks):
+    print(f"Processando chunk {i+1}...")
+    resultado_do_chunk = getStats(chunk)
+    lista_de_resultados.append(resultado_do_chunk)
+
+print("Processamento concluído.")
+
+
+print("Combinando resultados...")
+lista_de_resultados = [df for df in lista_de_resultados if not df.empty]
+df_stats_bruto = pd.concat(lista_de_resultados)
+
+df_stats_agregado = df_stats_bruto.groupby(['YEAR', 'MONTH', 'DAY', NOME_COLUNA_CIA]).agg(
+    TOTAL_FLIGHTS=('TOTAL_FLIGHTS', 'sum'),
+    DELAYED_FLIGHTS=('DELAYED_FLIGHTS', 'sum')
+).reset_index()
+
+
+print(df_stats_agregado.head())
+```
+```{python}
+
+def computeStats(df_input):
+    # Copia o dataframe para evitar avisos
+    df = df_input.copy()
+    
+    # 1. Calcula o percentual de atrasos
+    df['Perc'] = df['DELAYED_FLIGHTS'] / df['TOTAL_FLIGHTS']
+    
+    # 2. Cria a coluna de Data a partir de YEAR, MONTH, DAY
+    df['Data'] = pd.to_datetime(df[['YEAR', 'MONTH', 'DAY']])
+    
+    # 3. Renomeia a coluna 'AIRLINE' para 'Cia'
+    df = df.rename(columns={'AIRLINE': 'Cia'})
+    
+    # 4. Seleciona apenas as colunas finais de interesse
+    df_final = df[['Cia', 'Data', 'Perc']]
+    
+    return df_final
+
+df_pronto_para_plotar = computeStats(df_stats_agregado)
+
+# Mostra as primeiras linhas da tabela final
+print(df_pronto_para_plotar.head())
+```
+
+```{python}
+
+dados_aa = df_pronto_para_plotar[df_pronto_para_plotar['Cia'] == 'AA']
+# e seleciona a coluna 'Perc' como os valores.
+serie_aa = dados_aa.set_index('Data')['Perc']
+
+# Vamos ver as 5 primeiras linhas para confirmar o formato
+print(serie_aa.head())
+```
+```{python}
+# Importa as bibliotecas necessárias para o gráfico
+import calmap
+import matplotlib.pyplot as plt # Usada para customizar o gráfico (título, tamanho, etc.)
+
+
+
+# Define o tamanho da figura para que o gráfico não fique muito pequeno
+plt.figure(figsize=(16, 8))
+
+
+# O argumento 'cmap' define a paleta de cores. 'RdBu_r' é um gradiente de azul para vermelho.
+calmap.yearplot(serie_aa, cmap='RdBu_r')
+
+# Adiciona um título ao gráfico
+plt.title('Percentual de Voos com Atraso (>10 min) - American Airlines (AA) em 2015', fontsize=16)
+
+# Mostra o gráfico gerado
+plt.show()
+```
+
+```{python}
+
+
+
+# 1. Filtra o dataframe para a Delta
+dados_dl = df_pronto_para_plotar[df_pronto_para_plotar['Cia'] == 'DL']
+
+# 2. Prepara a série de dados para o gráfico
+serie_dl = dados_dl.set_index('Data')['Perc']
+
+# 3. Plota o gráfico
+plt.figure(figsize=(16, 8)) # Define o tamanho da figura
+calmap.yearplot(serie_dl, cmap='RdBu_r') # Cria o calendário com a paleta de cores
+plt.title('Percentual de Voos com Atraso (>10 min) - Delta Air Lines (DL) em 2015', fontsize=16) # Adiciona o título
+plt.show() # Mostra o gráfico
+
+
+
+
+# 1. Filtra o dataframe para a United
+dados_ua = df_pronto_para_plotar[df_pronto_para_plotar['Cia'] == 'UA']
+
+# 2. Prepara a série de dados para o gráfico
+serie_ua = dados_ua.set_index('Data')['Perc']
+
+# 3. Plota o gráfico
+plt.figure(figsize=(16, 8))
+calmap.yearplot(serie_ua, cmap='RdBu_r')
+plt.title('Percentual de Voos com Atraso (>10 min) - United Airlines (UA) em 2015', fontsize=16)
+plt.show()
+
+
+
+
+# 1. Filtra o dataframe para a US Airways
+dados_us = df_pronto_para_plotar[df_pronto_para_plotar['Cia'] == 'US']
+
+# 2. Prepara a série de dados para o gráfico
+serie_us = dados_us.set_index('Data')['Perc']
+
+# 3. Plota o gráfico
+plt.figure(figsize=(16, 8))
+calmap.yearplot(serie_us, cmap='RdBu_r')
+plt.title('Percentual de Voos com Atraso (>10 min) - US Airways (US) em 2015', fontsize=16)
+plt.show()
+```
+

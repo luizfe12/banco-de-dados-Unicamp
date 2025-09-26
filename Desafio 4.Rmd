@@ -1,0 +1,147 @@
+---
+output:
+  html_document: default
+  pdf_document: default
+---
+Desfaio de:
+Luiz Felipe da Silva 241625
+Pedro Monteiro Tilhe 254672
+Kaleo Campos Gomes de Sá Ecles 256333
+
+
+
+```{r}
+library(tidyverse)
+library(readr)
+library(lubridate)
+library(geosphere)
+library(ggplot2)
+library(maps)
+```
+
+```{r}
+# Ler airports.csv (apenas colunas relevantes)
+airports <- read_csv(
+  "airports.csv",
+  col_types = cols(
+    IATA_CODE = col_character(),
+    CITY      = col_character(),
+    STATE     = col_character(),
+    LATITUDE  = col_double(),
+    LONGITUDE = col_double()
+  )
+)
+
+# Ler flights.csv (todas as colunas)
+flights_raw <- read_csv("flights.csv")
+
+# Converter hhmm para segundos
+.hhmm_to_hm <- function(x) {
+  x <- as.character(x)
+  x <- stringr::str_pad(x, 4, pad = "0")
+  h <- suppressWarnings(as.integer(substr(x, 1, 2)))
+  m <- suppressWarnings(as.integer(substr(x, 3, 4)))
+  h[is.na(h)] <- 0L; m[is.na(m)] <- 0L
+  h * 3600 + m * 60
+}
+```
+
+```{r}
+# Função principal que recebe o TAIL_NUMBER
+make_tail_map <- function(tail_number) {
+  has_cols <- function(df, cols) all(cols %in% names(df))
+  
+  # Filtrar voos da aeronave escolhida
+  df <- flights_raw %>%
+    filter(TAIL_NUMBER == .env$tail_number) %>%
+    filter(!is.na(ORIGIN_AIRPORT), !is.na(DESTINATION_AIRPORT))
+  
+  # Verificar se encontrou voos
+  if (nrow(df) == 0) stop(sprintf("Nenhum voo encontrado para '%s'.", tail_number))
+  
+  # Identificar colunas de horários
+  time_col <- if ("DEPARTURE_TIME" %in% names(df)) "DEPARTURE_TIME" else
+    if ("SCHEDULED_DEPARTURE" %in% names(df)) "SCHEDULED_DEPARTURE" else NA
+  arrv_col <- if ("ARRIVAL_TIME" %in% names(df)) "ARRIVAL_TIME" else
+    if ("SCHEDULED_ARRIVAL" %in% names(df)) "SCHEDULED_ARRIVAL" else NA
+  
+  # Conferir se colunas de data/hora existem
+  if (is.na(time_col) || is.na(arrv_col) ||
+      !has_cols(df, c("YEAR","MONTH","DAY"))) {
+    stop("Faltam colunas de data/hora.")
+  }
+  
+  # Criar timestamps de partida e chegada
+  df <- df %>%
+    mutate(
+      dep_sec  = .hhmm_to_hm(.data[[time_col]]),
+      arr_sec  = .hhmm_to_hm(.data[[arrv_col]]),
+      dep_dt   = make_datetime(YEAR, MONTH, DAY) + seconds(dep_sec),
+      arr_dt   = make_datetime(YEAR, MONTH, DAY) + seconds(arr_sec) +
+        if_else(arr_sec < dep_sec, days(1), days(0))
+    ) %>%
+    arrange(dep_dt) %>%
+    mutate(seg_id = row_number())
+  
+  # Juntar com coordenadas dos aeroportos
+  air_min <- airports %>% select(IATA_CODE, LATITUDE, LONGITUDE, CITY, STATE)
+  
+  tidy_table <- df %>%
+    mutate(DEP_DATETIME = dep_dt, ARR_DATETIME = arr_dt) %>%
+    left_join(air_min, by = c("ORIGIN_AIRPORT" = "IATA_CODE")) %>%
+    rename(LAT_ORIG = LATITUDE, LON_ORIG = LONGITUDE) %>%
+    left_join(air_min, by = c("DESTINATION_AIRPORT" = "IATA_CODE")) %>%
+    rename(LAT_DEST = LATITUDE, LON_DEST = LONGITUDE) %>%
+    # Calcular distância, duração e velocidade média
+    mutate(
+      dist_km = geosphere::distHaversine(cbind(LON_ORIG, LAT_ORIG), cbind(LON_DEST, LAT_DEST))/1000,
+      dur_hr  = if ("AIR_TIME" %in% names(.))
+        ifelse(!is.na(AIR_TIME), AIR_TIME/60,
+               as.numeric(difftime(ARR_DATETIME, DEP_DATETIME, units="hours")))
+      else as.numeric(difftime(ARR_DATETIME, DEP_DATETIME, units="hours")),
+      vel_kmh = if_else(is.finite(dur_hr) & dur_hr > 0, dist_km/dur_hr, NA_real_)
+    ) %>%
+    relocate(seg_id, DEP_DATETIME, ARR_DATETIME) %>%
+    arrange(DEP_DATETIME)
+  
+  # Filtrar apenas linhas válidas para plot
+  tidy_plot <- tidy_table %>%
+    filter(!is.na(LAT_ORIG), !is.na(LON_ORIG),
+           !is.na(LAT_DEST), !is.na(LON_DEST),
+           is.finite(vel_kmh))
+  
+  # Base de mapa dos EUA
+  us_map <- map_data("state")
+  
+  # Criar mapa com trajetos e velocidade média
+  p <- ggplot() +
+    geom_polygon(data = us_map, aes(long, lat, group = group),
+                 fill = "grey95", color = "grey80", linewidth = 0.2) +
+    geom_segment(data = tidy_plot,
+                 aes(x = LON_ORIG, y = LAT_ORIG, xend = LON_DEST, yend = LAT_DEST,
+                     linewidth = vel_kmh, color = vel_kmh),
+                 alpha = 0.7, lineend = "round", na.rm = TRUE) +
+    geom_point(data = tidy_plot, aes(LON_ORIG, LAT_ORIG), size = 1.1, alpha = 0.8) +
+    geom_point(data = tidy_plot, aes(LON_DEST, LAT_DEST), size = 1.1, alpha = 0.8) +
+    scale_linewidth_continuous(name = "Velocidade média (km/h)", range = c(0.4, 2.8)) +
+    scale_color_viridis_c(name = "Velocidade média (km/h)", option = "C", na.value = "grey80") +
+    guides(linewidth = "none") +
+    coord_quickmap(xlim = range(c(tidy_plot$LON_ORIG, tidy_plot$LON_DEST), na.rm = TRUE) + c(-2, 2),
+                   ylim = range(c(tidy_plot$LAT_ORIG, tidy_plot$LAT_DEST), na.rm = TRUE) + c(-2, 2)) +
+    labs(title = sprintf("Trajeto anual da aeronave %s", tail_number),
+         subtitle = "Espessura/cores = velocidade média por voo",
+         x = NULL, y = NULL) +
+    theme_minimal(base_size = 11) +
+    theme(panel.grid = element_blank(), legend.position = "right")
+  
+  # Retornar tabela e mapa
+  list(table = tidy_table, plot = p)
+}
+```
+
+```{r}
+tail_id <- na.omit(flights_raw$TAIL_NUMBER)[1]
+ out <- make_tail_map(tail_id)
+ View(out$table); print(out$plot)
+```
+

@@ -1,0 +1,114 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+```{r}
+library(RSQLite)
+```
+
+```{r}
+##Conectando no BD
+(conn = dbConnect(SQLite(), "uwmadison.sqlite3"))
+```
+
+```{r}
+sql = ("SELECT DISTINCT id, instructors.name FROM instructors
+        INNER JOIN teachings ON instructors.id = teachings.instructor_id
+        INNER JOIN sections ON teachings.section_uuid = sections.uuid
+        INNER JOIN subject_memberships ON sections.course_offering_uuid = subject_memberships.course_offering_uuid
+        INNER JOIN subjects ON subject_memberships.subject_code = subjects.code
+        WHERE subjects.abbreviation='STAT'")
+```
+
+```{r}
+dbGetQuery(conn,sql )
+```
+
+```{r}
+dbListTables(conn)
+sql = ("SELECT * FROM grade_distributions
+        LIMIT 5")
+```
+
+```{r}
+dbGetQuery(conn, sql)
+```
+
+```{r}
+sql = ("SELECT
+      (a_count*4 + ab_count*3.5 + b_count*3 + bc_count*2.5 + c_count*2 + d_count*1 + f_count*0) / (a_count + ab_count + b_count + bc_count + c_count + d_count + f_count) AS MEDIAS,
+      FROM grade_distributions
+        LIMIT 5")
+
+```
+
+
+```{r}
+sql_gpa_professor <- "
+SELECT
+  i.name,
+  -- Cálculo do GPA usando as colunas da tabela grade_distributions
+  SUM(gd.a_count*4 + gd.ab_count*3.5 + gd.b_count*3 + gd.bc_count*2.5 + gd.c_count*2 + gd.d_count*1) / 
+  SUM(gd.a_count + gd.ab_count + gd.b_count + gd.bc_count + gd.c_count + gd.d_count + gd.f_count) AS weighted_gpa,
+  -- Contagem total de alunos para o filtro
+  SUM(gd.a_count + gd.ab_count + gd.b_count + gd.bc_count + gd.c_count + gd.d_count + gd.f_count) AS total_students
+FROM instructors i
+-- Junções para conectar o professor à oferta do curso
+INNER JOIN teachings t ON i.id = t.instructor_id
+INNER JOIN sections s ON t.section_uuid = s.uuid
+-- Junção chave para conectar as notas à oferta do curso
+INNER JOIN grade_distributions gd ON s.course_offering_uuid = gd.course_offering_uuid
+-- Junções para filtrar apenas por disciplinas de Estatística
+INNER JOIN subject_memberships sm ON s.course_offering_uuid = sm.course_offering_uuid
+INNER JOIN subjects sub ON sm.subject_code = sub.code
+WHERE 
+  sub.abbreviation = 'STAT' AND
+  -- Garantir que a divisão não seja por zero
+  (gd.a_count + gd.ab_count + gd.b_count + gd.bc_count + gd.c_count + gd.d_count + gd.f_count) > 0
+GROUP BY i.name
+-- Filtro para garantir uma amostra mínima de alunos por professor
+HAVING total_students > 30
+ORDER BY weighted_gpa;
+"
+
+gpa_por_professor <- dbGetQuery(conn, sql_gpa_professor)
+
+print("Professor mais difícil (menor GPA):")
+print(head(gpa_por_professor, 1))
+
+print("Professor mais fácil (maior GPA):")
+print(tail(gpa_por_professor, 1))
+```
+
+```{r}
+sql_gpa_disciplina <- "
+SELECT
+  c.number,
+  c.name,
+  SUM(gd.a_count*4 + gd.ab_count*3.5 + gd.b_count*3 + gd.bc_count*2.5 + gd.c_count*2 + gd.d_count*1) / 
+  SUM(gd.a_count + gd.ab_count + gd.b_count + gd.bc_count + gd.c_count + gd.d_count + gd.f_count) AS weighted_gpa,
+  SUM(gd.a_count + gd.ab_count + gd.b_count + gd.bc_count + gd.c_count + gd.d_count + gd.f_count) AS total_students
+FROM courses c
+-- Junções para conectar o curso à oferta e às notas
+INNER JOIN course_offerings co ON c.uuid = co.course_uuid
+INNER JOIN grade_distributions gd ON co.uuid = gd.course_offering_uuid
+-- Junções para filtrar apenas por disciplinas de Estatística
+INNER JOIN subject_memberships sm ON co.uuid = sm.course_offering_uuid
+INNER JOIN subjects sub ON sm.subject_code = sub.code
+WHERE 
+  sub.abbreviation = 'STAT' AND
+  (gd.a_count + gd.ab_count + gd.b_count + gd.bc_count + gd.c_count + gd.d_count + gd.f_count) > 0
+GROUP BY c.uuid
+HAVING total_students > 30
+ORDER BY weighted_gpa;
+"
+gpa_por_disciplina <- dbGetQuery(conn, sql_gpa_disciplina)
+
+print("Disciplina mais difícil (menor GPA):")
+print(head(gpa_por_disciplina, 1))
+
+print("Disciplina mais fácil (maior GPA):")
+print(tail(gpa_por_disciplina, 1))
+```
+

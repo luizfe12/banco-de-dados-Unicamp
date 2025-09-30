@@ -1,0 +1,93 @@
+```{r}
+
+
+# Carregando os pacotes
+library(readr)
+library(RSQLite)
+```
+
+```{r}
+# Conectar ao banco de dados (cria se não existir)
+con <- dbConnect(SQLite(), "voos.sqlite3")
+```
+
+```{r}
+# Ler os arquivos
+airlines <- read_csv("airlines.csv")
+airports <- read_csv("airports.csv")
+
+# Escrever as tabelas no banco de dados
+dbWriteTable(con, "airlines", airlines, overwrite = TRUE)
+dbWriteTable(con, "airports", airports, overwrite = TRUE)
+```
+
+```{r}
+lerDados <- function(input, pos) {
+  # Filtra as linhas que têm ORIGIN_AIRPORT ou DESTINATION_AIRPORT nos aeroportos de interesse
+  input_filtrado <- input[input$ORIGIN_AIRPORT %in% c("BWI", "MIA", "SEA", "SFO", "JFK") | 
+                          input$DESTINATION_AIRPORT %in% c("BWI", "MIA", "SEA", "SFO", "JFK"), ]
+  
+  # Escreve o chunk filtrado na tabela 'flights', appendando se existir
+  dbWriteTable(con, "flights", input_filtrado, append = TRUE, row.names = FALSE)
+  
+  # Mensagem de progresso
+  message("Leitura atingiu a linha ", pos)
+}
+```
+
+```{r}
+# Definir as colunas que queremos
+colunas <- c("YEAR", "MONTH", "DAY", "AIRLINE", "FLIGHT_NUMBER", 
+             "ORIGIN_AIRPORT", "DESTINATION_AIRPORT", "ARRIVAL_DELAY")
+
+# Ler o arquivo por chunks, aplicando a função lerDados
+read_csv_chunked("flights.csv", 
+                 callback = SideEffectChunkCallback$new(lerDados),
+                 chunk_size = 100000,
+                 col_types = cols_only(
+                   YEAR = col_integer(),
+                   MONTH = col_integer(),
+                   DAY = col_integer(),
+                   AIRLINE = col_character(),
+                   FLIGHT_NUMBER = col_integer(),
+                   ORIGIN_AIRPORT = col_character(),
+                   DESTINATION_AIRPORT = col_character(),
+                   ARRIVAL_DELAY = col_double()
+                 ),
+                 progress = FALSE)
+```
+
+
+
+```{r}
+consulta <- "
+SELECT 
+    f.DESTINATION_AIRPORT,
+    ap.AIRPORT as airport_name,
+    al.AIRLINE as airline_name,
+    AVG(f.ARRIVAL_DELAY) as avg_delay
+FROM 
+    flights f
+JOIN 
+    airports ap ON f.DESTINATION_AIRPORT = ap.IATA_CODE
+JOIN 
+    airlines al ON f.AIRLINE = al.IATA_CODE
+GROUP BY 
+    f.DESTINATION_AIRPORT
+ORDER BY 
+    avg_delay DESC
+"
+
+resultado <- dbGetQuery(con, consulta)
+print(resultado)
+```
+
+```{r}
+# Imprimir a data e hora de compilação
+message("Data e hora de compilação: ", Sys.time())
+```
+
+```{r}
+dbDisconnect(con)
+```
+
